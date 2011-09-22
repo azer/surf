@@ -105,6 +105,7 @@ static void source(Client *c, const Arg *arg);
 static void spawn(Client *c, const Arg *arg);
 static void stop(Client *c, const Arg *arg);
 static void titlechange(WebKitWebView *v, WebKitWebFrame* frame, const char* title, Client *c);
+static void log_url(WebKitWebView *v, WebKitWebFrame* frame, const char* title, Client *c);
 static void update(Client *c);
 static void updatewinid(Client *c);
 static void usage(void);
@@ -141,6 +142,7 @@ cleanup(void) {
 		destroyclient(clients);
 	g_free(cookiefile);
 	g_free(scriptfile);
+  g_free(historyfile);
 	g_free(stylefile);
 }
 
@@ -456,6 +458,7 @@ newclient(void) {
 	/* Webview */
 	c->view = WEBKIT_WEB_VIEW(webkit_web_view_new());
 	g_signal_connect(G_OBJECT(c->view), "title-changed", G_CALLBACK(titlechange), c);
+	g_signal_connect(G_OBJECT(c->view), "load-finished", G_CALLBACK(log_url), c);
 	g_signal_connect(G_OBJECT(c->view), "hovering-over-link", G_CALLBACK(linkhover), c);
 	g_signal_connect(G_OBJECT(c->view), "create-web-view", G_CALLBACK(createwindow), c);
 	g_signal_connect(G_OBJECT(c->view), "new-window-policy-decision-requested", G_CALLBACK(decidewindow), c);
@@ -690,6 +693,7 @@ setup(void) {
 
 	/* dirs and files */
 	cookiefile = buildpath(cookiefile);
+  historyfile = buildpath(historyfile);
 	scriptfile = buildpath(scriptfile);
 	stylefile = buildpath(stylefile);
 
@@ -749,6 +753,15 @@ void
 titlechange(WebKitWebView *v, WebKitWebFrame *f, const char *t, Client *c) {
 	c->title = copystr(&c->title, t);
 	update(c);
+}
+
+void
+log_url(WebKitWebView *v, WebKitWebFrame *f, const char *t, Client *c) {
+  FILE *fl;
+
+  fl = fopen(historyfile, "a+");
+  fprintf(fl, "%s\n", webkit_web_frame_get_uri(f));
+  fclose(fl);
 }
 
 void
@@ -834,6 +847,11 @@ main(int argc, char *argv[]) {
 			usage();
 		}
 	}
+
+  #ifdef HOMEPAGE
+    arg.v = HOMEPAGE;
+  #endif
+
 	if(i < argc)
 		arg.v = argv[i];
 	setup();
