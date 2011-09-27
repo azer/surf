@@ -7,6 +7,30 @@ static char *scriptfile     = ".surf/script.js";
 static char *cookiefile     = ".surf/cookies.txt";
 static char *historyfile    = ".surf/history";
 static time_t sessiontime   = 3600;
+
+static SearchEngine searchengines[] = {
+  { "g",   "http://www.google.com/search?q=%s" },
+  { "gc",   "http://google.com/codesearch?hl=en&lr=&q=%s" },
+  { "gtr", "http://google.com/search?q=%s&lr=lang_tr" },
+
+  { "w",   "http://en.wikipedia.org/w/index.php?title=Special:Search&search=%s&go=Go" },
+
+  { "dl", "http://del.icio.us/xingjiangao/%s" },
+  { "dp", "http://delicious.com/popular/%s" },
+  { "ds", "http://delicious.com/search?p=%s&chk=&context=userposts|xingjiangao&fr=del_icio_us&lc=1" },
+
+  { "so", "http://google.com/search?hl=en&safe=off&num=100&q=site:stackoverflow.com+%s&aq=f&oq=&aqi=" },
+  { "dict", "http://www.google.com/#q=%s&tbs=dfn:1" },
+  { "lastfm", "http://last.fm/music/%s" },
+  { "flickr", "http://flickr.com/search/?q=%s&m=tags&s=int" },
+  { "garanti", "https://sube.garanti.com.tr/isube/loginform" },
+  { "eksi", "http://sozluk.sourtimes.org/show.asp?t=%s" },
+  { "zargan", "http://zargan.com/sozluk.asp?Sozcuk=%s" },
+  { "ddg",   "http://www.duckduckgo.com/?q=%s" },
+  { "wa",   "http://www.wolframalpha.com/input/?i=%s" },
+  { "imdb",   "http://google.com/search?q=site:imdb.com%20%s&num=100" }
+};
+
 #define HIDE_BACKGROUND FALSE
 #define HOMEPAGE "http://localhost/dashboard"
 #define MODKEY GDK_CONTROL_MASK

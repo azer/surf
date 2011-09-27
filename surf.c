@@ -55,6 +55,11 @@ typedef struct {
 	const Arg arg;
 } Key;
 
+typedef struct {
+  char *token;
+  char *uri;
+} SearchEngine;
+
 static Display *dpy;
 static Atom atoms[AtomLast];
 static Client *clients = NULL;
@@ -90,6 +95,7 @@ static void navigate(Client *c, const Arg *arg);
 static Client *newclient(void);
 static void newwindow(Client *c, const Arg *arg);
 static void newrequest(SoupSession *s, SoupMessage *msg, gpointer v);
+static gchar *parseuri(const gchar *uri);
 static void pasteuri(GtkClipboard *clipboard, const char *text, gpointer d);
 static void print(Client *c, const Arg *arg);
 static GdkFilterReturn processx(GdkXEvent *xevent, GdkEvent *event, gpointer d);
@@ -393,6 +399,7 @@ loaduri(Client *c, const Arg *arg) {
 		return;
 	u = g_strrstr(uri, "://") ? g_strdup(uri)
 		: g_strdup_printf("http://%s", uri);
+  u = parseuri(uri);
 	/* prevents endless loop */
 	if(c->uri && strcmp(u, c->uri) == 0) {
 		reload(c, &a);
@@ -564,6 +571,18 @@ newwindow(Client *c, const Arg *arg) {
 		cmd[i++] = uri;
 	cmd[i++] = NULL;
 	spawn(NULL, &a);
+}
+
+gchar *
+parseuri(const gchar *uri) {
+  guint i;
+  for (i = 0; i < LENGTH(searchengines); i++) {
+    if (searchengines[i].token == NULL || searchengines[i].uri == NULL || *(uri + strlen(searchengines[i].token)) != ' ')
+      continue;
+    if (g_str_has_prefix(uri, searchengines[i].token))
+      return g_strdup_printf(searchengines[i].uri, uri + strlen(searchengines[i].token) + 1);
+  }
+  return g_strrstr(uri, "://") ? g_strdup(uri) : g_strdup_printf("http://%s", uri);
 }
 
 void
