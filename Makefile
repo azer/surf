@@ -51,6 +51,9 @@ install: all
 	@sed "s/VERSION/${VERSION}/g" < surf.1 > ${DESTDIR}${MANPREFIX}/man1/surf.1
 	@chmod 644 ${DESTDIR}${MANPREFIX}/man1/surf.1
 
+github:
+	hg push git+ssh://git@github.com/azer/surf.git
+
 uninstall:
 	@echo removing executable file from ${DESTDIR}${PREFIX}/bin
 	@rm -f ${DESTDIR}${PREFIX}/bin/surf
